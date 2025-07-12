@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bottle.muselink.mapper.ChatMessageMemoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.bottle.muselink.domain.ChatMessageMemory">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="conversationId" column="conversation_id" />
+            <result property="messageOrder" column="message_order" />
+            <result property="messageType" column="message_type" />
+            <result property="messageContent" column="message_content" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+            <result property="isDeleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,conversation_id,message_order,message_type,message_content,
+        create_time,update_time,is_deleted
+    </sql>
+</mapper>
