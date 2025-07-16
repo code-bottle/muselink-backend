@@ -4,6 +4,10 @@ import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.bottle.muselink.advisor.AppSpecificLoggerAdvisor;
 import com.bottle.muselink.advisor.SensitiveWordCheckAdvisor;
 import com.bottle.muselink.chatmemory.MysqlChatMemory;
+import com.bottle.muselink.rag.MyCustomRagAdvisorFactory;
+import com.bottle.muselink.rag.MyQueryRewriter;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -12,6 +16,9 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,6 +45,12 @@ public class SoulMateApp {
             "请始终以温柔而有力量的方式陪伴用户，帮助他们找到属于自己的答案。";
 
     private final ChatClient dashScopeChatClient;
+
+    // @Resource
+    // private VectorStore pgVectorStore;
+
+    @Resource
+    private MyQueryRewriter myQueryRewriter;
 
     /**
      * 构造函数，初始化 ChatClient
@@ -100,6 +113,29 @@ public class SoulMateApp {
                 .call()
                 .entity(SoulRecord.class);
         return soulRecord;
+    }
+
+    /**
+     * AI对话，支持RAG检索
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithRag(String message, String chatId) {
+        // String rewriteQuery = myQueryRewriter.doQueryRewrite(message);
+        ChatResponse chatResponse = dashScopeChatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                //  添加云端知识库RAG检索增强服务
+                .advisors(MyCustomRagAdvisorFactory.createCloudRagCustomAdvisor())
+                //  添加本地知识库RAG检索增强服务
+                // .advisors(MyCustomRagAdvisorFactory.createLocalRagCustomAdvisor(pgVectorStore))
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        return content;
     }
 
 }

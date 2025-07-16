@@ -49,4 +49,12 @@ class SoulMateAppTest {
         SoulMateApp.SoulRecord soulRecord = soulMateApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(soulRecord);
     }
+
+    @Test
+    void doChatWithRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我觉得最近不太开心，总感觉有一点说不出来的压抑";
+        String answer = soulMateApp.doChatWithRag(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }

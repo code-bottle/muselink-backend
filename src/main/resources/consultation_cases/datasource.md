@@ -1,0 +1,1 @@
+心理咨询案例数据源详见 https://www.modelscope.cn/datasets/YIRONGCHEN/SoulChatCorpus

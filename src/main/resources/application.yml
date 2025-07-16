@@ -2,16 +2,27 @@ spring:
   application:
     name: muselink
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/muselink
-    username: root
-    password: qwer1234
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3307/muselink
+      username: root
+      password: qwer1234
+    postgres:
+      url: jdbc:postgresql://localhost:5432/postgres
+      username: postgres
+      password: postgres
   ai:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY}
       chat:
         options:
-          model: qwen-plus
+          model: qwen-turbo
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
 server:
   port: 8123
   servlet:
@@ -42,3 +53,8 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+# log
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.ai.transformer.splitter: WARN
