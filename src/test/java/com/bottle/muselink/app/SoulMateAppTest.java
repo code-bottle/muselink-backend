@@ -57,4 +57,44 @@ class SoulMateAppTest {
         String answer = soulMateApp.doChatWithRag(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
+    private void testChatWithTools(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = soulMateApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
+
+    @Test
+    void doChatWithTools() {
+        // 测试联网搜索问题的答案
+        testChatWithTools("能联网搜索下然后推荐目前有助于缓解焦虑的心理学书籍吗？");
+
+        // 测试网页抓取：情感支持案例分析
+        testChatWithTools("我和伴侣之间的沟通出现了障碍，看看心理咨询服务网站（psychologytoday.com）上的专家是如何建议处理这种情况的？");
+
+        // 测试资源下载：音频下载
+        testChatWithTools("下载一张有浪漫星空的图片帮我放松缓解压力");
+
+        // 测试终端操作：执行代码
+        testChatWithTools("编写一段Python代码打印爱心型的哈哈哈，然后执行代码返回结果");
+
+        // 测试文件操作：保存用户档案
+        testChatWithTools("保存我的聊天记录为文件，记录下每天的心情变化以及应对策略。");
+
+        // 测试 PDF 生成
+        testChatWithTools("创建一份‘个人成长与心理健康’PDF指南，内容包括每日正念练习、情绪管理技巧及求助资源列表。");
+    }
+
+    @Test
+    void doChatWithMcp() {
+        String chatId = UUID.randomUUID().toString();
+        String message1 = "搜索5张星空的图片给我";
+        String answer1 =  soulMateApp.doChatWithMcp(message1, chatId);
+        Assertions.assertNotNull(answer1);
+
+        String message2 = "推荐几个深圳南山区附近5公里内的游玩景点";
+        String answer2 =  soulMateApp.doChatWithMcp(message2, chatId);
+        Assertions.assertNotNull(answer2);
+    }
+
 }
