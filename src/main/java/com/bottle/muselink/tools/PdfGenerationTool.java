@@ -1,6 +1,7 @@
 package com.bottle.muselink.tools;
 
 import cn.hutool.core.io.FileUtil;
+import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -9,12 +10,22 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.html2pdf.HtmlConverter;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+import org.jsoup.Jsoup;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,30 +46,55 @@ public class PdfGenerationTool {
     public String generatePDF(
             @ToolParam(description = "Name of the file to save the generated PDF") String fileName,
             @ToolParam(description = "Content to be included in the PDF") String content) {
+
+        FileUtil.mkdir(FILE_DIR);
         String filePath = FILE_DIR + "/" + fileName;
-        try {
-            // 创建目录
-            FileUtil.mkdir(FILE_DIR);
-            // 创建 PdfWriter 和 PdfDocument 对象
-            PdfWriter writer = new PdfWriter(filePath);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-            // 使用内置中文字体
-            PdfFont font = PdfFontFactory.createFont("STSongStd-Light", "UniGB-UCS2-H");
-            document.setFont(font);
-            // 处理内容
-            processContent(content, document, font);
-            document.close();
+        String processContent = "";
+
+        if(!content.startsWith("</")){
+            Parser parser = Parser.builder().build();
+            Node document = parser.parse(content);
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            processContent = renderer.render(document);
+        }
+
+        try (OutputStream os = new FileOutputStream(filePath)) {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(processContent, "");
+            renderer.layout();
+            renderer.createPDF(os);
             return "PDF generated successfully to: " + filePath;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return "Error generating PDF: " + e.getMessage();
         }
+        // String filePath = FILE_DIR + "/" + fileName;
+        // try {
+        //     // 创建目录
+        //     FileUtil.mkdir(FILE_DIR);
+        //
+        //     HtmlConverter.convertToPdf(content, new FileOutputStream(filePath));
+        //
+        //     // // 创建 PdfWriter 和 PdfDocument 对象
+        //     // PdfWriter writer = new PdfWriter(filePath);
+        //     // PdfDocument pdf = new PdfDocument(writer);
+        //     // Document document = new Document(pdf);
+        //     // // 使用内置中文字体
+        //     // PdfFont font = PdfFontFactory.createFont("STSongStd-Light", "UniGB-UCS2-H");
+        //     // document.setFont(font);
+        //     // // 处理内容，判断是 HTML 还是 Markdown
+        //     // processMarkdownContent(content, document, font);
+        //     // document.close();
+        //
+        //     return "PDF generated successfully to: " + filePath;
+        // } catch (IOException e) {
+        //     return "Error generating PDF: " + e.getMessage();
+        // }
     }
 
     /**
-     * 处理内容
+     * 处理Markdown内容
      */
-    private void processContent(String content, Document document, PdfFont font) {
+    private void processMarkdownContent(String content, Document document, PdfFont font) {
         String[] lines = content.split("\n");
         StringBuilder textBuffer = new StringBuilder();
 
@@ -94,6 +130,54 @@ public class PdfGenerationTool {
 
         if (textBuffer.length() > 0) {
             processTextWithImages(textBuffer.toString(), document);
+        }
+    }
+
+    /**
+     * 处理HTML内容
+     */
+    private void processHtmlContent(String html, Document document, PdfFont font) {
+        org.jsoup.nodes.Document doc = Jsoup.parse(html);
+
+        for (org.jsoup.nodes.Element element : doc.getAllElements()) {
+            switch (element.tagName().toLowerCase()) {
+                case "h1", "h2", "h3", "h4", "h5", "h6":
+                    int level = Integer.parseInt(element.tagName().substring(1));
+                    addHeader(document, element.text(), level, font);
+                    break;
+                case "p":
+                    addFormattedText(document, element.text());
+                    break;
+                case "img":
+                    String imageUrl = element.attr("src");
+                    try {
+                        if (imageUrl.startsWith("data:image")) {
+                            String base64Data = imageUrl.substring(imageUrl.indexOf(",") + 1);
+                            byte[] imageData = Base64.getDecoder().decode(base64Data);
+                            Image image = new Image(ImageDataFactory.create(imageData, true));
+                            document.add(image);
+                        } else {
+                            Image image = new Image(ImageDataFactory.create(new URL(imageUrl)));
+                            document.add(image);
+                        }
+                    } catch (Exception e) {
+                        document.add(new Paragraph("无法加载图片: " + imageUrl));
+                    }
+                    break;
+                case "ul":
+                    for (org.jsoup.nodes.Element li : element.select("li")) {
+                        addListItem(document, li.text(), false, font);
+                    }
+                    break;
+                case "ol":
+                    for (org.jsoup.nodes.Element li : element.select("li")) {
+                        addListItem(document, li.text(), true, font);
+                    }
+                    break;
+                default:
+                    // 其他标签按普通文本处理
+                    addFormattedText(document, element.text());
+            }
         }
     }
 

@@ -23,7 +23,8 @@ public class ToolRegisterConfig {
                 new WebCrawlerTool(),
                 new ResourceDownloadTool(),
                 new TerminalOperationTool(),
-                new PdfGenerationTool()
+                new PdfGenerationTool(),
+                new TerminateTool()
         );
     }
 }

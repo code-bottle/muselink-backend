@@ -16,7 +16,7 @@ spring:
       api-key: ${DASHSCOPE_API_KEY}
       chat:
         options:
-          model: qwen-turbo
+          model: qwen-plus-2025-07-14
     vectorstore:
       pgvector:
         index-type: HNSW
@@ -69,6 +69,8 @@ knife4j:
 # log
 logging:
   level:
+    org.apache.ibatis: OFF
+    com.baomidou: ERROR
     org.springframework.ai: DEBUG
     org.springframework.ai.transformer.splitter: WARN
 websearch:

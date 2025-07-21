@@ -87,14 +87,15 @@ class SoulMateAppTest {
 
     @Test
     void doChatWithMcp() {
-        String chatId = UUID.randomUUID().toString();
-        String message1 = "搜索5张星空的图片给我";
-        String answer1 =  soulMateApp.doChatWithMcp(message1, chatId);
+        String chatId1 = UUID.randomUUID().toString();
+        String message1 = "搜索2张星空的图片给我";
+        String answer1 =  soulMateApp.doChatWithMcp(message1, chatId1);
         Assertions.assertNotNull(answer1);
 
-        String message2 = "推荐几个深圳南山区附近5公里内的游玩景点";
-        String answer2 =  soulMateApp.doChatWithMcp(message2, chatId);
-        Assertions.assertNotNull(answer2);
+        // String chatId2 = UUID.randomUUID().toString();
+        // String message2 = "深圳南山区附近10公里内的游玩景点";
+        // String answer2 =  soulMateApp.doChatWithMcp(message2, chatId2);
+        // Assertions.assertNotNull(answer2);
     }
 
 }

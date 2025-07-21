@@ -171,6 +171,8 @@ public class SoulMateApp {
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                 // 开启MCP扩展
                 .toolCallbacks(toolCallbackProvider)
+                // 开启工具调用
+                .toolCallbacks(allTools)
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
