@@ -24,6 +24,7 @@ public class ToolRegisterConfig {
                 new ResourceDownloadTool(),
                 new TerminalOperationTool(),
                 new PdfGenerationTool(),
+                new AskHumanTool(),
                 new TerminateTool()
         );
     }

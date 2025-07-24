@@ -1,6 +1,7 @@
 package com.bottle.muselink.agent;
 
 
+import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,10 +34,10 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
+@Component
 public class ToolCallAgent extends ReActAgent {
 
     // MCP提供的工具
-    @Autowired
     private ToolCallbackProvider toolCallbackProvider;
 
     // 可用的工具
@@ -51,12 +54,15 @@ public class ToolCallAgent extends ReActAgent {
 
     private String chatId;
 
-    public ToolCallAgent(ToolCallback[] availableTools) {
+    public ToolCallAgent(ToolCallback[] availableTools, ToolCallbackProvider toolCallbackProvider) {
         super();
         this.availableTools = availableTools;
+        this.toolCallbackProvider = toolCallbackProvider;
         this.toolCallingManager = ToolCallingManager.builder().build();
         this.chatOptions = DashScopeChatOptions.builder()
                 .withInternalToolExecutionEnabled(false)
+                // .withEnableThinking(true)
+                // .withIncrementalOutput(true)
                 .build();
     }
 
@@ -87,28 +93,27 @@ public class ToolCallAgent extends ReActAgent {
             ChatResponse chatResponse = getChatClient()
                     .prompt(prompt)
                     .system(getSystemPrompt())
-                    // .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                    .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                     .toolCallbacks(availableTools)
                     .toolCallbacks(toolCallbackProvider)
+                    .options(chatOptions)
                     .call()
                     .chatResponse();
             this.toolCallChatResponse = chatResponse;
             // 3、解析工具调用结果，获取要调用的工具
             AssistantMessage assistantMessage = chatResponse.getResult().getOutput();
             List<AssistantMessage.ToolCall> toolCallList = assistantMessage.getToolCalls();
-            String result = assistantMessage.getText();
-            log.info(getName() + "的思考：" + result);
-            log.info(getName() + "选择了 " + toolCallList.size() + " 个工具来使用");
-            String toolCallInfo = toolCallList.stream()
-                    .map(toolCall -> String.format("工具名称：%s，参数：%s", toolCall.name(), toolCall.arguments()))
-                    .collect(Collectors.joining("\n"));
-            log.info(toolCallInfo);
-
+            // String result = assistantMessage.getText();
             if (toolCallList.isEmpty()) {
                 // 只有不调用工具时，才需要手动记录助手消息
                 getMessageList().add(assistantMessage);
                 return false;
             } else {
+                log.info(getName() + "思考后选择了 " + toolCallList.size() + " 个工具来使用");
+                String toolCallInfo = toolCallList.stream()
+                        .map(toolCall -> String.format("工具名称：%s，参数：%s", toolCall.name(), toolCall.arguments()))
+                        .collect(Collectors.joining("\n"));
+                log.info(toolCallInfo);
                 // 需要调用工具时，无需记录助手消息，因为调用工具时会自动记录
                 return true;
             }

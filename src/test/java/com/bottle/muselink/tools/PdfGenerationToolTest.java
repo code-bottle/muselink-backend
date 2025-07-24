@@ -5,7 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 class PdfGenerationToolTest {
 
     @Test
@@ -13,54 +12,7 @@ class PdfGenerationToolTest {
         PdfGenerationTool tool = new PdfGenerationTool();
         String fileName = "guangzhou_travel.pdf";
 
-        String content = """
-                广州一日精华游
-                
-                行程概览
-                
-                天气预报：晴朗，适宜户外活动
-                建议出发时间：上午8:00
-                
-                行程安排
-                
-                上午 - 探索历史文化
-                
-                第一站：陈家祠
-                地址：荔湾区中山七路恩龙里20号
-                开放时间：8:30 - 17:30
-                亮点：岭南建筑艺术的代表作，木雕、石雕、砖雕等装饰精美绝伦。
-                
-                第二站：上下九步行街
-                地址：荔湾区上下九路
-                活动：逛街购物，品尝地道小吃如肠粉、双皮奶等。
-                
-                中午 - 美食体验
-                
-                推荐餐厅：广州酒家
-                特色菜品：白切鸡、叉烧包、虾饺
-                位置：多个分店遍布全市，可根据行程选择最近的一家。
-                
-                下午 - 现代都市风光
-                
-                第三站：广州塔（小蛮腰）
-                地址：海珠区阅江西路222号
-                开放时间：9:00 - 22:30
-                亮点：登塔俯瞰城市全景，欣赏珠江两岸美景。
-                
-                第四站：花城广场
-                活动：散步，拍照留念，感受现代化的城市氛围。
-                
-                晚上 - 夜生活与夜市
-                
-                第五站：天河商圈
-                活动：晚餐后逛街，参观各大商场和购物中心。
-                夜宵地点：正佳广场附近的美食街
-                推荐小吃：牛杂、烧烤串、糖水
-                
-                注意事项
-                根据当天实际情况调整行程。
-                提前查看各景点的开放时间和门票信息。
-                穿着舒适的鞋子，准备好防晒用品。""";
+        String content = "# 广州天河区旅游规划\n\n## 景点推荐\n\n1. 天河公园\n   - 简介：天河公园是广州市内较大的城市公园之一，拥有广阔的绿地和湖泊，是休闲娱乐的好去处。\n   - 图片：![](https://images.pexels.com/photos/29820804/pexels-photo-29820804.jpeg?auto=compress&cs=tinysrgb&h=350)\n\n2. 广州塔\n   - 简介：广州塔是广州的标志性建筑之一，可以乘坐观光电梯到达观景台，俯瞰整个广州市的美景。\n   - 图片：![](https://images.pexels.com/photos/14447175/pexels-photo-14447175.jpeg?auto=compress&cs=tinysrgb&h=350)\n\n## 餐厅推荐\n\n1. 黑珍珠一钻餐厅\n   - 简介：位于天河区太古汇，提供精致的粤菜，环境优雅，是品尝地道广州美食的好地方。\n   - 图片：![](https://images.pexels.com/photos/2070033/pexels-photo-2070033.jpeg?auto=compress&cs=tinysrgb&h=350)\n\n2. 广州柏悦悦景轩\n   - 简介：位于柏悦酒店68层，是一家米其林摘星黑珍珠二钻餐厅，提供高品质的餐饮体验。\n   - 图片：![](https://images.pexels.com/photos/1115166/pexels-photo-1115166.jpeg?auto=compress&cs=tinysrgb&h=350)";
 
         String result = tool.generatePDF(fileName, content);
         assertTrue(result.contains("PDF generated successfully"));

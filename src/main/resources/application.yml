@@ -1,6 +1,12 @@
 spring:
   application:
     name: muselink
+  servlet:
+    http:
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
   datasource:
     mysql:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,7 +22,7 @@ spring:
       api-key: ${DASHSCOPE_API_KEY}
       chat:
         options:
-          model: qwen-plus-2025-07-14
+          model: qwen-plus
     vectorstore:
       pgvector:
         index-type: HNSW
@@ -43,7 +49,8 @@ server:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
   global-config:
     db-config:
       logic-delete-field: is_deleted # 全局逻辑删除的实体字段名
@@ -69,8 +76,13 @@ knife4j:
 # log
 logging:
   level:
+    # 关闭 MyBatis 的 Mapper 接口日志（SQL 打印）
+    com.bottle.muselink.mapper: OFF
+    # 关闭 MyBatis Plus 的日志
+    com.baomidou.mybatisplus: OFF
+    # 关闭 MyBatis Core 的日志
     org.apache.ibatis: OFF
-    com.baomidou: ERROR
+
     org.springframework.ai: DEBUG
     org.springframework.ai.transformer.splitter: WARN
 websearch:

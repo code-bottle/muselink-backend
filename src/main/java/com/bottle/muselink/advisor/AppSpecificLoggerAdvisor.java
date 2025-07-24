@@ -8,7 +8,12 @@ import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
 import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
 import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import reactor.core.publisher.Flux;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 自定义日志打印拦截器
@@ -26,12 +31,35 @@ public class AppSpecificLoggerAdvisor implements CallAdvisor, StreamAdvisor {
     }
 
     private ChatClientRequest before(ChatClientRequest request) {
-        log.info("AI Request: {}", request.prompt().getUserMessage().getText());
+        List<Message> allMessages = request.prompt().getInstructions();
+        List<Message> currentRoundMessages = getCurrentUserMessages(allMessages);
+
+        currentRoundMessages.forEach(message ->
+                log.info("AI Request [{}]: {}", message.getMessageType(), message.getText()));
         return request;
     }
 
+    private List<Message> getCurrentUserMessages(List<Message> allMessages) {
+        List<Message> result = new ArrayList<>();
+        int size = allMessages.size();
+
+        for (int i = size - 1; i >= 0; i--) {
+            Message message = allMessages.get(i);
+            if (!(message instanceof UserMessage)) {
+                break; // 遇到非用户消息，终止
+            }
+            result.add(0, message); // 插入到头部，保持原始顺序
+        }
+
+        return result;
+    }
+
+
     private void observeAfter(ChatClientResponse chatClientResponse) {
-        log.info("AI Response: {}", chatClientResponse.chatResponse().getResult().getOutput().getText());
+        chatClientResponse.chatResponse().getResults().forEach(generation -> {
+                    Message message = generation.getOutput();
+                    log.info("AI Response [{}]: {}", message.getMessageType(), message.getText());
+                });
     }
     @Override
     public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {

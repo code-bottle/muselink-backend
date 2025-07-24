@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 public class BottleManus extends ToolCallAgent {
 
 
-    public BottleManus(ToolCallback[] allTools, ChatModel dashscopeChatModel, MysqlChatMemory mysqlChatMemory, ToolCallbackProvider toolCallbackProvider) {
-        super(allTools);
+    public BottleManus(ToolCallback[] allTools, ToolCallbackProvider toolCallbackProvider, ChatModel dashscopeChatModel, MysqlChatMemory mysqlChatMemory) {
+        super(allTools, toolCallbackProvider);
         this.setName("BottleManus");
         String SYSTEM_PROMPT = """
                 You are BottleManus, an all-capable AI assistant, aimed at solving any task presented by the user.
@@ -41,7 +41,7 @@ public class BottleManus extends ToolCallAgent {
                 // 针对输入内容的敏感词检测
                 .defaultAdvisors(new SensitiveWordCheckAdvisor())
                 // 基于MySQL的会话记忆
-                // .defaultAdvisors(MessageChatMemoryAdvisor.builder(mysqlChatMemory).build())
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(mysqlChatMemory).build())
                 // 自定义Logger的Advisor
                 .defaultAdvisors(new AppSpecificLoggerAdvisor())
                 .build();

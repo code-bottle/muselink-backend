@@ -23,8 +23,11 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -52,8 +55,6 @@ public class SoulMateApp {
     @Resource
     private MyQueryRewriter myQueryRewriter;
 
-    @Resource
-    private ToolCallback[] allTools;
 
     /**
      * 构造函数，初始化 ChatClient
@@ -99,6 +100,22 @@ public class SoulMateApp {
         return content;
     }
 
+    /**
+     * AI  streaming 流式对话
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return dashScopeChatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .stream()
+                .content();
+    }
+
+
     record SoulRecord(String title, List<String> sugesstions){}
     /**
      * AI对话获取咨询报告
@@ -141,6 +158,12 @@ public class SoulMateApp {
         return content;
     }
 
+    @Resource
+    private ToolCallback[] allTools;
+
+    @Resource
+    private ToolCallbackProvider toolCallbackProvider;
+
     /**
      * AI对话，支持工具调用
      *
@@ -161,18 +184,19 @@ public class SoulMateApp {
         return content;
     }
 
-    @Resource
-    private ToolCallbackProvider toolCallbackProvider;
 
     public String doChatWithMcp(String message, String chatId) {
+        List<ToolCallback> toolCallbacksList = Stream.concat(
+                Arrays.stream(allTools),
+                Arrays.stream(toolCallbackProvider.getToolCallbacks())
+        ).toList();
+
         ChatResponse response = dashScopeChatClient
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启MCP扩展
-                .toolCallbacks(toolCallbackProvider)
-                // 开启工具调用
-                .toolCallbacks(allTools)
+                // 开启工具调用和MCP扩展
+                .toolCallbacks(toolCallbacksList)
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
