@@ -47,11 +47,11 @@ MuseLink is an AI-powered project designed to serve as both an inspiration colla
 
 - **SoulMateApp Chat With RAG**:  
   This video demonstrates how RAG enhances responses by combining cloud-based knowledge retrieval.
-  https://github.com/user-attachments/assets/0f611899-720d-422b-95c6-79afbfc7b03d
+  <video src="https://github.com/user-attachments/assets/0f611899-720d-422b-95c6-79afbfc7b03d" width="640" height="360" controls></video>
 
 - **BottleManus**:  
   This video showcases the capabilities of the BottleManus AI assistant in solving complex tasks.
-  https://github.com/user-attachments/assets/a0548bd8-d33e-438f-a840-69678ee7d916
+  <video src="https://github.com/user-attachments/assets/a0548bd8-d33e-438f-a840-69678ee7d916" width="640" height="360" controls></video>
 
 ### Example Tools
 
