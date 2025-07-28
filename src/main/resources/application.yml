@@ -22,7 +22,7 @@ spring:
       api-key: ${DASHSCOPE_API_KEY}
       chat:
         options:
-          model: qwen-plus
+          model: qwen-plus-latest
     vectorstore:
       pgvector:
         index-type: HNSW
@@ -75,6 +75,8 @@ knife4j:
     language: zh_cn
 # log
 logging:
+  pattern:
+    console: "%d{HH:mm:ss} [%thread] %M - %msg%n"
   level:
     # 关闭 MyBatis 的 Mapper 接口日志（SQL 打印）
     com.bottle.muselink.mapper: OFF

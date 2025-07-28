@@ -111,6 +111,7 @@ public class SoulMateApp {
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .advisors(MyCustomRagAdvisorFactory.createCloudRagCustomAdvisor())
                 .stream()
                 .content();
     }
