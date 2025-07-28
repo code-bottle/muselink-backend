@@ -49,7 +49,7 @@ MuseLink is an AI-powered project designed to serve as both an inspiration colla
   This video demonstrates how RAG enhances responses by combining cloud-based knowledge retrieval.
 
   <video width="640" height="360" controls>
-    <source src="https://github.com/code-bottle/muselink-backend/blob/main/assets/rag_demo.mp4" type="video/mp4">
+    <source src="assets/rag_demo.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
@@ -57,7 +57,7 @@ MuseLink is an AI-powered project designed to serve as both an inspiration colla
   This video showcases the capabilities of the BottleManus AI assistant in solving complex tasks.
 
   <video width="640" height="360" controls>
-    <source src="https://github.com/code-bottle/muselink-backend/blob/main/assets/manus_demo.mp4" type="video/mp4">
+    <source src="assets/manus_demo.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video> 
 
